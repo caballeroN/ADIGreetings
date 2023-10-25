@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saludo App</title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container min-vh-100 d-flex justify-content-center align-items-center">
+        <form id="saludoForm">
+            <div class="form-group mb-3">
+                <h1>Saludo App</h1>
+            </div>
+            <div class="form-group mb-3">
+                <input type="text" id="nombre" name="nombre" required autofocus placeholder="Ingrese su nombre" title="El nombre es obligatorio" class="form-control">
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="fechaNacimiento" class="form-label">Seleccione su fecha de nacimiento.</label>
+                <input type="date" id="fechaNacimiento" name="fechaNacimiento" class="form-control" required>
+            </div>
+
+            <div class="form-group mb-3">
+                <button type="button" id="agregarPersona" class="btn btn-primary">Agregar Persona</button>
+            </div>
+            <div class="form-group mb-3">   
+                <button type="button" id="generarSaludo" class="btn btn-success">Generar Saludo</button>
+            </div> 
+        </form>
+    </div>    
+    
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.0/js/bootstrap.min.js"></script>
+
+    <script>
+        // Obtén los elementos de nombre y fecha de nacimiento
+        var nombreInput = document.getElementById("nombre");
+        var fechaNacimientoInput = document.getElementById("fechaNacimiento");
+        var agregarPersonaButton = document.getElementById("agregarPersona");
+
+        // Agrega un evento 'input' a los campos para verificar su contenido
+        nombreInput.addEventListener("input", function () {
+            validarFormulario();
+        });
+
+        fechaNacimientoInput.addEventListener("input", function () {
+            validarFormulario();
+        });
+
+        // Función para habilitar/deshabilitar el botón según la validación
+        function validarFormulario() {
+            if (nombreInput.value && fechaNacimientoInput.value) {
+                agregarPersonaButton.removeAttribute("disabled");
+            } else {
+                agregarPersonaButton.setAttribute("disabled", "true");
+            }
+        }
+
+        // También llama a validarFormulario al cargar la página para deshabilitar el botón inicialmente
+        validarFormulario();
+        
+        document.getElementById("agregarPersona").addEventListener("click", function () {
+            var nombre = document.getElementById("nombre").value;
+            var fechaNacimiento = document.getElementById("fechaNacimiento").value;
+            var formData = {
+                nombre: nombre,
+                fechaNacimiento: fechaNacimiento
+            };
+
+            fetch('/persona', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Persona agregada correctamente.');
+            })
+            .catch(error => {
+                alert('Error al agregar la persona.');
+            });
+        });
+
+        document.getElementById("generarSaludo").addEventListener("click", function () {
+            var nombre = document.getElementById("nombre").value;
+
+            fetch('/persona/saludo?nombre=' + nombre, {
+                method: 'GET'
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("mensajeSaludo").textContent = data;
+            })
+            .catch(error => {
+                alert('Error al generar el saludo.');
+            });
+        }
+    </script>
+</body>
+</html>
